@@ -12,7 +12,8 @@ fn main() -> Result<()> {
     for _ in 0..50 {
         let random_id: usize = trng.gen_range(usize::MIN..usize::MAX);
         let user = User::new(random_id, "John Doe");
-        db.set("users", &user)?;
+        let key = format!("user_{}", random_id);
+        db.set(key, &user)?;
     }
     Ok(())
 }

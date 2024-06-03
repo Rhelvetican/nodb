@@ -1,5 +1,5 @@
 use std::{
-    fs::{read, rename, write},
+    fs::{read, rename, write, DirBuilder},
     path::{Path, PathBuf},
     time::{Duration, Instant, SystemTime, UNIX_EPOCH},
 };
@@ -39,6 +39,11 @@ impl NoDb {
         ser_method: SerializationMethod,
     ) -> Self {
         let path = db_path.as_ref().to_path_buf();
+
+        if !path.exists() {
+            let parent = path.parent().unwrap();
+            DirBuilder::new().recursive(true).create(parent).unwrap();
+        }
 
         NoDb {
             map: DbMap::new(),
