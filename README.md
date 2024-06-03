@@ -1,3 +1,3 @@
 # NoDB
 
-A simple database.
+A simple database, based on [PickleDB](https://github.com/seladb/pickledb-rs/).
