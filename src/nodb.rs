@@ -9,6 +9,7 @@ use serde::{de::DeserializeOwned, Serialize};
 
 use crate::{
     ext::NoDbExt,
+    iter::{NoDbIter, NoDbListIter},
     ser::{SerializationMethod, SerializeMethod, Serializer},
     DbListMap, DbMap,
 };
@@ -199,8 +200,8 @@ impl NoDb {
             None => None,
         }
     }
-    pub fn lget<V: DeserializeOwned>(&self, name: &str, pos: usize) -> Option<V> {
-        match self.list_map.get(name) {
+    pub fn lget<V: DeserializeOwned, N: AsRef<str>>(&self, name: N, pos: usize) -> Option<V> {
+        match self.list_map.get(name.as_ref()) {
             Some(list) => match list.get(pos) {
                 Some(val) => self.ser.deserialize_data::<V>(val),
                 None => None,
@@ -208,14 +209,15 @@ impl NoDb {
             None => None,
         }
     }
-    pub fn llen(&self, name: &str) -> usize {
-        match self.list_map.get(name) {
+    pub fn llen<N: AsRef<str>>(&self, name: N) -> usize {
+        match self.list_map.get(name.as_ref()) {
             Some(list) => list.len(),
             None => 0,
         }
     }
-    pub fn lrem_list(&mut self, name: &str) -> Result<usize> {
-        let res = self.llen(name);
+    pub fn lrem_list<N: AsRef<str>>(&mut self, name: N) -> Result<usize> {
+        let res = self.llen(&name);
+        let name = name.as_ref();
         match self.list_map.remove(name) {
             Some(list) => match self.dumpdb() {
                 Ok(_) => Ok(res),
@@ -227,7 +229,8 @@ impl NoDb {
             None => Ok(res),
         }
     }
-    pub fn lpop<V: DeserializeOwned>(&mut self, name: &str, pos: usize) -> Option<V> {
+    pub fn lpop<V: DeserializeOwned, N: AsRef<str>>(&mut self, name: N, pos: usize) -> Option<V> {
+        let name = name.as_ref();
         match self.list_map.get_mut(name) {
             Some(list) => {
                 if pos < list.len() {
@@ -248,7 +251,8 @@ impl NoDb {
             None => None,
         }
     }
-    pub fn lrem_value<V: Serialize>(&mut self, name: &str, value: &V) -> Result<bool> {
+    pub fn lrem_value<V: Serialize, N: AsRef<str>>(&mut self, name: N, value: &V) -> Result<bool> {
+        let name = name.as_ref();
         match self.list_map.get_mut(name) {
             Some(list) => {
                 let serialized_value = match self.ser.serialize_data(&value) {
@@ -279,6 +283,33 @@ impl NoDb {
             }
 
             None => Ok(false),
+        }
+    }
+    pub fn iter(&self) -> NoDbIter {
+        NoDbIter {
+            map_iter: self.map.iter(),
+            ser: &self.ser,
+        }
+    }
+    pub fn liter<N: AsRef<str>>(&self, name: N) -> NoDbListIter {
+        let name = name.as_ref();
+        match self.list_map.get(name) {
+            Some(list) => NoDbListIter {
+                list_iter: list.iter(),
+                ser: &self.ser,
+            },
+            None => NoDbListIter {
+                list_iter: [].iter(),
+                ser: &self.ser,
+            },
+        }
+    }
+}
+
+impl Drop for NoDb {
+    fn drop(&mut self) {
+        if !matches!(self.policy, DumpPolicy::Never | DumpPolicy::OnCall) {
+            let _ = self.dump();
         }
     }
 }
