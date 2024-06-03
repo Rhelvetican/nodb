@@ -2,7 +2,7 @@
 name = "nodb"
 version = "0.1.0"
 authors = ["Rhelvetican <bionicvnb@gmail.com>"]
-license = "APACHE/MIT"
+license = "MIT"
 repository = "https://github.com/Rhelvetican/nodb"
 homepage = "https://github.com/Rhelvetican/nodb"
 readme = "README.md"
