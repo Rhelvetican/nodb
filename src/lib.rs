@@ -1,3 +1,15 @@
+//! # NoDb
+//! ======
+//!
+//! NoDb is a simple key-value store that stores data in a single file. It is designed to be used in
+//! small projects where a full-fledged database is not required. It is based on [PickleDB-RS](https://github.com/seladb/pickledb-rs/)
+//!
+//! ## Features
+//! - **Simple**: NoDb is simple to use, similar to PickleDB.
+//! - **Fast**: NoDb is fast, as it stores data in memory and writes to disk only when required.
+//! - **Lightweight**: NoDb is lightweight, with only a few dependencies.
+//! - **Serialization**: NoDb supports different serialization methods with Serde.
+
 pub use anyhow::Result;
 use std::collections::HashMap;
 
