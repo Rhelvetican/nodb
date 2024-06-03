@@ -1,0 +1,17 @@
+[package]
+name = "nodb"
+version = "0.1.0"
+authors = ["Rhelvetican <bionicvnb@gmail.com>"]
+license = "APACHE/MIT"
+readme = "README.md"
+description = "A lightweight and simple key-value store written in Rust."
+keywords = ["database", "key-value-store", "db", "kv", "pickledb"]
+categories = ["database-implementations", "data-structures"]
+edition = "2021"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["preserve_order"] }
+serde_cbor = "0.11"
+bincode = "1"
+anyhow = "1"
