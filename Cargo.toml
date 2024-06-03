@@ -24,3 +24,7 @@ rand = "0.8"
 [[example]]
 name = "simple_db"
 path = "examples/simple_db/src/main.rs"
+
+[[example]]
+name = "load_db"
+path = "examples/load_db/src/main.rs"
