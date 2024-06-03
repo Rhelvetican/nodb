@@ -3,17 +3,13 @@ use bin::BinSer;
 use cbor::CborSer;
 use json::JsonSer;
 use serde::{de::DeserializeOwned, Serialize};
-use std::{
-    collections::HashMap,
-    fmt::{Display, Formatter, Result as FmtResult},
-};
+use std::fmt::{Display, Formatter, Result as FmtResult};
+
+use crate::{DbListMap, DbMap};
 
 mod bin;
 mod cbor;
 mod json;
-
-type DbMap = HashMap<String, Vec<u8>>;
-type DbListMap = HashMap<String, Vec<Vec<u8>>>;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum SerializationMethod {
