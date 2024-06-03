@@ -7,7 +7,7 @@ repository = "https://github.com/Rhelvetican/nodb"
 homepage = "https://github.com/Rhelvetican/nodb"
 readme = "README.md"
 description = "A lightweight and simple key-value store written in Rust."
-keywords = ["database", "key-value-store", "db", "kv", "nodb", "nosql"]
+keywords = ["database", "key-value-store", "db", "kv", "nosql"]
 categories = ["database-implementations", "data-structures"]
 edition = "2021"
 
