@@ -17,3 +17,10 @@ serde_json = { version = "1", features = ["preserve_order"] }
 serde_cbor = "0.11"
 bincode = "1"
 anyhow = "1"
+
+[dev-dependencies]
+rand = "0.8"
+
+[[example]]
+name = "simple_db"
+path = "examples/simple_db/src/main.rs"

@@ -1,0 +1,10 @@
+[package]
+name = "simple_db"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+nodb = { path = "../../" }
+serde = { version = "1", features = ["derive"] }
+rand = { version = "0.8", features = ["std"] }
+anyhow = "1"
