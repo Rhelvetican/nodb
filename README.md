@@ -1,3 +1,3 @@
 # NoDB
 
-A simple database, based on [PickleDB](https://github.com/seladb/pickledb-rs/).
+A lightweight and simple key-value store written in Rust, based on [PickleDB-RS](https://github.com/seladb/pickledb-rs/).

@@ -26,7 +26,7 @@ pub enum DumpPolicy {
 pub struct NoDb {
     pub map: DbMap,
     pub list_map: DbListMap,
-    pub ser: Serializer,
+    ser: Serializer,
     pub path: PathBuf,
     pub policy: DumpPolicy,
     pub last_dump: Instant,
