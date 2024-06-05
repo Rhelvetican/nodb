@@ -24,6 +24,34 @@ dependencies = [
 ]
 
 [[package]]
+name = "bitcode"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "48bc1c27654127a24c476d40198746860ef56475f41a601bfa5c4d0f832968f0"
+dependencies = [
+ "bitcode_derive",
+ "bytemuck",
+ "serde",
+]
+
+[[package]]
+name = "bitcode_derive"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2966755a19aad59ee2aae91e2d48842c667a99d818ec72168efdab07200701cc"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "bytemuck"
+version = "1.16.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "78834c15cb5d5efe3452d58b1e8ba890dd62d21907f867f383358198e56ebca5"
+
+[[package]]
 name = "cfg-if"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -93,6 +121,7 @@ dependencies = [
  "anyhow",
  "base64",
  "bincode",
+ "bitcode",
  "rand",
  "serde",
  "serde_cbor",
