@@ -12,12 +12,16 @@ categories = ["database-implementations", "data-structures"]
 edition = "2021"
 
 [dependencies]
+# Utilities
+anyhow = "1"
 base64 = "0"
+
+# Data Serialization
 serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1", features = ["preserve_order"] }
 serde_cbor = "0.11"
 bincode = "1"
-anyhow = "1"
+toml = "0.8"
 
 [dev-dependencies]
 rand = "0.8"
