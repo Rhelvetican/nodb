@@ -1,6 +1,6 @@
 [package]
 name = "nodb"
-version = "0.2.1"
+version = "0.2.2"
 authors = ["Rhelvetican <bionicvnb@gmail.com>"]
 license = "MIT"
 repository = "https://github.com/Rhelvetican/nodb"
@@ -22,6 +22,7 @@ serde_json = { version = "1", features = ["preserve_order"] }
 serde_cbor = "0.11"
 bincode = "1"
 bitcode = { version = "0", features = ["serde"] }
+bson = "2"
 ron = "0.8"
 toml = "0.8"
 
@@ -35,3 +36,9 @@ path = "examples/simple_db/src/main.rs"
 [[example]]
 name = "load_db"
 path = "examples/load_db/src/main.rs"
+
+[[example]]
+name = "bson"
+path = "examples/bson/src/main.rs"
+
+[features]

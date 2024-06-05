@@ -1,6 +1,7 @@
 use anyhow::Result;
 use bin::BinSer;
 use bit::BitSer;
+use bson::BsonSer;
 use cbor::CborSer;
 use json::JsonSer;
 use ron::RonSer;
@@ -12,6 +13,7 @@ use crate::{DbListMap, DbMap};
 
 mod bin;
 mod bit;
+mod bson;
 mod cbor;
 mod json;
 mod ron;
@@ -26,6 +28,7 @@ pub enum SerializationMethod {
     Toml,
     Bit,
     Ron,
+    Bson,
 }
 
 impl<T: Into<usize>> From<T> for SerializationMethod {
@@ -38,6 +41,7 @@ impl<T: Into<usize>> From<T> for SerializationMethod {
             3 => SerializationMethod::Toml,
             4 => SerializationMethod::Bit,
             5 => SerializationMethod::Ron,
+            6 => SerializationMethod::Bson,
             _ => SerializationMethod::Json,
         }
     }
@@ -63,6 +67,7 @@ pub(crate) enum Serializer {
     Toml(TomlSer),
     Bit(BitSer),
     Ron(RonSer),
+    Bson(BsonSer),
 }
 
 impl From<SerializationMethod> for Serializer {
@@ -74,6 +79,7 @@ impl From<SerializationMethod> for Serializer {
             SerializationMethod::Toml => Serializer::Toml(TomlSer::new()),
             SerializationMethod::Bit => Serializer::Bit(BitSer::new()),
             SerializationMethod::Ron => Serializer::Ron(RonSer::new()),
+            SerializationMethod::Bson => Serializer::Bson(BsonSer::new()),
         }
     }
 }
@@ -87,6 +93,7 @@ impl SerializeMethod for Serializer {
             Serializer::Toml(toml_ser) => toml_ser.serialize_data(data),
             Serializer::Bit(bit_ser) => bit_ser.serialize_data(data),
             Serializer::Ron(ron_ser) => ron_ser.serialize_data(data),
+            Serializer::Bson(bson_ser) => bson_ser.serialize_data(data),
         }
     }
     fn serialize_db(&self, db_map: &DbMap, db_list_map: &DbListMap) -> Result<Vec<u8>> {
@@ -97,6 +104,7 @@ impl SerializeMethod for Serializer {
             Serializer::Toml(toml_ser) => toml_ser.serialize_db(db_map, db_list_map),
             Serializer::Bit(bit_ser) => bit_ser.serialize_db(db_map, db_list_map),
             Serializer::Ron(ron_ser) => ron_ser.serialize_db(db_map, db_list_map),
+            Serializer::Bson(bson_ser) => bson_ser.serialize_db(db_map, db_list_map),
         }
     }
     fn deserialize_data<T: DeserializeOwned>(&self, data: &[u8]) -> Option<T> {
@@ -107,6 +115,7 @@ impl SerializeMethod for Serializer {
             Serializer::Toml(toml_ser) => toml_ser.deserialize_data(data),
             Serializer::Bit(bit_ser) => bit_ser.deserialize_data(data),
             Serializer::Ron(ron_ser) => ron_ser.deserialize_data(data),
+            Serializer::Bson(bson_ser) => bson_ser.deserialize_data(data),
         }
     }
     fn deserialized_db(&self, ser_db: &[u8]) -> Result<(DbMap, DbListMap)> {
@@ -117,6 +126,7 @@ impl SerializeMethod for Serializer {
             Serializer::Toml(toml_ser) => toml_ser.deserialized_db(ser_db),
             Serializer::Bit(bit_ser) => bit_ser.deserialized_db(ser_db),
             Serializer::Ron(ron_ser) => ron_ser.deserialized_db(ser_db),
+            Serializer::Bson(bson_ser) => bson_ser.deserialized_db(ser_db),
         }
     }
 }
