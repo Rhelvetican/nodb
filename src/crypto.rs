@@ -1,3 +1,7 @@
+//! # Crypto
+//!
+//! This module contains the `B64` struct which is used to encrypt and decrypt data using the `base64` algorithm.
+
 use anyhow::Result;
 use base64::{
     engine::{general_purpose::STANDARD, GeneralPurpose},
