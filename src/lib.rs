@@ -9,6 +9,7 @@
 //! - **Fast**: NoDb is fast, as it stores data in memory and writes to disk only when required.
 //! - **Lightweight**: NoDb is lightweight, with only a few dependencies.
 //! - **Serialization**: NoDb supports different serialization methods with Serde.
+//! - **Encrypted**: NoDb supports encryption of data (Currently uses Base64 Encryption).
 
 pub use anyhow::Result;
 use std::collections::HashMap;
