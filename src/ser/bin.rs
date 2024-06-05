@@ -4,10 +4,10 @@ use serde::{de::DeserializeOwned, Serialize};
 
 use super::{DbListMap, DbMap, SerializeMethod};
 
-pub struct BinSer;
+pub(crate) struct BinSer;
 
 impl BinSer {
-    pub fn new() -> Self {
+    pub(crate) const fn new() -> Self {
         BinSer
     }
 }

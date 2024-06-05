@@ -4,10 +4,10 @@ use anyhow::{anyhow, Result};
 use ron::{de::from_bytes, ser::to_string};
 use serde::{de::DeserializeOwned, Serialize};
 
-pub struct RonSer;
+pub(crate) struct RonSer;
 
 impl RonSer {
-    pub fn new() -> Self {
+    pub(crate) const fn new() -> Self {
         RonSer
     }
 }

@@ -4,20 +4,20 @@ use super::SerializeMethod;
 use crate::{DbListMap, DbMap};
 use anyhow::{anyhow, Result};
 use serde::{de::DeserializeOwned, Serialize};
-use toml::{from_str, to_string};
 
-pub(crate) struct TomlSer {}
+use pot::{from_slice, to_vec};
 
-impl TomlSer {
+pub(crate) struct PotSer;
+
+impl PotSer {
     pub(crate) const fn new() -> Self {
-        TomlSer {}
+        PotSer
     }
 }
 
-impl SerializeMethod for TomlSer {
+impl SerializeMethod for PotSer {
     fn serialize_data<T: Serialize>(&self, data: &T) -> Result<Vec<u8>> {
-        let val = to_string(data)?;
-        Ok(val.as_bytes().to_vec())
+        Ok(to_vec(data)?)
     }
     fn serialize_db(&self, db_map: &DbMap, db_list_map: &DbListMap) -> Result<Vec<u8>> {
         let mut map = HashMap::new();
@@ -32,19 +32,13 @@ impl SerializeMethod for TomlSer {
                 .collect::<Vec<_>>();
             list_map.insert(k.as_str(), list);
         }
-        Ok(to_string(&(map, list_map))?.into_bytes())
+        Ok(to_vec(&(map, list_map))?)
     }
     fn deserialize_data<T: DeserializeOwned>(&self, data: &[u8]) -> Option<T> {
-        from_str(match from_utf8(data).ok() {
-            Some(v) => v,
-            None => return None,
-        })
-        .ok()
+        from_slice(data).ok()
     }
     fn deserialized_db(&self, ser_db: &[u8]) -> Result<(DbMap, DbListMap)> {
-        match from_str::<(HashMap<String, String>, HashMap<String, Vec<String>>)>(from_utf8(
-            ser_db,
-        )?) {
+        match from_slice::<(HashMap<String, String>, HashMap<String, Vec<String>>)>(ser_db) {
             Ok((map, list_map)) => {
                 let mut db_map = HashMap::new();
                 for (k, v) in map.iter() {

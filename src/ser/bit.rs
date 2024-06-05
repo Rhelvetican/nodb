@@ -4,10 +4,10 @@ use anyhow::{anyhow, Result};
 use bitcode::{deserialize, serialize};
 use serde::{de::DeserializeOwned, Serialize};
 
-pub struct BitSer;
+pub(crate) struct BitSer;
 
 impl BitSer {
-    pub fn new() -> Self {
+    pub(crate) const fn new() -> Self {
         BitSer
     }
 }

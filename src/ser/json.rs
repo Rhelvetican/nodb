@@ -5,10 +5,10 @@ use std::{collections::HashMap, str::from_utf8};
 
 use super::{DbListMap, DbMap, SerializeMethod};
 
-pub struct JsonSer;
+pub(crate) struct JsonSer;
 
 impl JsonSer {
-    pub fn new() -> Self {
+    pub(crate) const fn new() -> Self {
         JsonSer
     }
 }

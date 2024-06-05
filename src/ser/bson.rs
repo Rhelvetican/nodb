@@ -5,10 +5,11 @@ use serde::{de::DeserializeOwned, Serialize};
 use std::{collections::HashMap, str::from_utf8};
 
 use bson::{from_slice, to_vec};
-pub struct BsonSer;
+
+pub(crate) struct BsonSer;
 
 impl BsonSer {
-    pub fn new() -> Self {
+    pub(crate) const fn new() -> Self {
         BsonSer
     }
 }
