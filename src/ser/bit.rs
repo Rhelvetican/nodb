@@ -4,11 +4,11 @@ use anyhow::{anyhow, Result};
 use bitcode::{deserialize, serialize};
 use serde::{de::DeserializeOwned, Serialize};
 
-pub struct BitSer {}
+pub struct BitSer;
 
 impl BitSer {
     pub fn new() -> Self {
-        BitSer {}
+        BitSer
     }
 }
 

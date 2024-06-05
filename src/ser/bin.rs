@@ -4,11 +4,11 @@ use serde::{de::DeserializeOwned, Serialize};
 
 use super::{DbListMap, DbMap, SerializeMethod};
 
-pub struct BinSer {}
+pub struct BinSer;
 
 impl BinSer {
     pub fn new() -> Self {
-        BinSer {}
+        BinSer
     }
 }
 

@@ -4,11 +4,11 @@ use serde_cbor::{from_slice, to_vec};
 
 use super::{DbListMap, DbMap, SerializeMethod};
 
-pub struct CborSer {}
+pub struct CborSer;
 
 impl CborSer {
     pub fn new() -> Self {
-        CborSer {}
+        CborSer
     }
 }
 
