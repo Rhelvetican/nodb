@@ -23,6 +23,7 @@ pub use self::{
     ser::SerializationMethod,
 };
 
+mod crypto;
 mod ext;
 mod iter;
 mod nodb;

@@ -8,11 +8,14 @@ use anyhow::{anyhow, Result};
 use serde::{de::DeserializeOwned, Serialize};
 
 use crate::{
+    crypto::B64,
     ext::NoDbExt,
     iter::{NoDbIter, NoDbListIter},
     ser::{SerializationMethod, SerializeMethod, Serializer},
     DbListMap, DbMap,
 };
+
+const B64: B64 = B64::new();
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum DumpPolicy {
@@ -60,8 +63,9 @@ impl NoDb {
         ser_method: SerializationMethod,
     ) -> Result<Self> {
         let content = read(&db_path)?;
+        let decrypted_content = B64.decrypt(content)?;
         let ser = Serializer::from(ser_method);
-        let (map, list_map) = ser.deserialized_db(&content)?;
+        let (map, list_map) = ser.deserialized_db(&decrypted_content)?;
         let path_buf = db_path.as_ref().to_path_buf();
 
         Ok(NoDb {
@@ -78,6 +82,7 @@ impl NoDb {
             return Ok(());
         }
         let data = self.ser.serialize_db(&self.map, &self.list_map)?;
+        let encrypted_data = B64.encrypt(data);
         let tmp = format!(
             "{}.tmp.{}",
             self.path.to_str().unwrap_or("db"),
@@ -87,7 +92,7 @@ impl NoDb {
                 .as_secs()
         );
 
-        write(&tmp, data)?;
+        write(&tmp, encrypted_data)?;
         rename(&tmp, &self.path)?;
         if let DumpPolicy::Periodic(_) = self.policy {
             self.last_dump = Instant::now();
