@@ -273,10 +273,10 @@ impl NoDb {
     ///
     /// Upon success, the method returns an object of type
     /// [NoDbExt](struct.NoDbExt.html) that enables to add
-    /// items to the newly created list. Alternatively you can use [ladd()](#method.ladd)
-    /// or [lextend()](#method.lextend) to add items to the list.
+    /// items to the newly created list. Alternatively you can use [list_add()](#method.list_add)
+    /// or [list_extend()](#method.list_extend) to add items to the list.
 
-    pub fn lcreate<N: AsRef<str>>(&mut self, name: N) -> Result<NoDbExt> {
+    pub fn list_create<N: AsRef<str>>(&mut self, name: N) -> Result<NoDbExt> {
         let new_list = Vec::new();
         let name = name.as_ref();
         if self.map.contains_key(name) {
@@ -296,7 +296,7 @@ impl NoDb {
     /// The difference between this method and [exists()](#method.exists) is that this methods checks only
     /// for lists with that name (key) and [exists()](#method.exists) checks for both values and lists.
 
-    pub fn lexists<N: AsRef<str>>(&self, name: N) -> bool {
+    pub fn list_exists<N: AsRef<str>>(&self, name: N) -> bool {
         self.list_map.contains_key(name.as_ref())
     }
 
@@ -313,8 +313,8 @@ impl NoDb {
     /// or if a failure happened while extending the list. Failures are not likely to happen but may
     /// occur mostly in cases where this action triggers a DB dump (which is decided according to the dump policy).
 
-    pub fn ladd<K: AsRef<str>, V: Serialize>(&mut self, name: K, value: &V) -> Option<NoDbExt> {
-        self.lextend(name, &[value])
+    pub fn list_add<K: AsRef<str>, V: Serialize>(&mut self, name: K, value: &V) -> Option<NoDbExt> {
+        self.list_extend(name, &[value])
     }
 
     /// Add multiple items to an existing list.
@@ -333,7 +333,7 @@ impl NoDb {
     /// or if a failure happened while extending the list. Failures are not likely to happen but may
     /// occur mostly in cases where this action triggers a DB dump (which is decided according to the dump policy).
 
-    pub fn lextend<'a, N: AsRef<str>, V, I>(&mut self, name: N, seq: I) -> Option<NoDbExt>
+    pub fn list_extend<'a, N: AsRef<str>, V, I>(&mut self, name: N, seq: I) -> Option<NoDbExt>
     where
         V: 'a + Serialize,
         I: IntoIterator<Item = &'a V>,
@@ -371,7 +371,7 @@ impl NoDb {
     /// If the list is not found in the DB or the given position is out of bounds
     /// of the list `None` will be returned. Otherwise `Some(V)` will be returned.
 
-    pub fn lget<V: DeserializeOwned, N: AsRef<str>>(&self, name: N, pos: usize) -> Option<V> {
+    pub fn list_get<V: DeserializeOwned, N: AsRef<str>>(&self, name: N, pos: usize) -> Option<V> {
         match self.list_map.get(name.as_ref()) {
             Some(list) => match list.get(pos) {
                 Some(val) => self.ser.deserialize_data::<V>(val),
@@ -385,7 +385,7 @@ impl NoDb {
     ///
     /// If the list is empty or if it doesn't exist the value of 0 is returned.
 
-    pub fn llen<N: AsRef<str>>(&self, name: N) -> usize {
+    pub fn list_len<N: AsRef<str>>(&self, name: N) -> usize {
         match self.list_map.get(name.as_ref()) {
             Some(list) => list.len(),
             None => 0,
@@ -402,8 +402,8 @@ impl NoDb {
     ///   Failures are not likely to happen but may occur mostly in cases where this action triggers a
     ///   DB dump (which is decided according to the dump policy).
 
-    pub fn lrem_list<N: AsRef<str>>(&mut self, name: N) -> Result<usize> {
-        let res = self.llen(&name);
+    pub fn list_rm_list<N: AsRef<str>>(&mut self, name: N) -> Result<usize> {
+        let res = self.list_len(&name);
         let name = name.as_ref();
         match self.list_map.remove(name) {
             Some(list) => match self.dumpdb() {
@@ -431,11 +431,15 @@ impl NoDb {
     /// triggers a DB dump (which is decided according to the dump policy).
     /// Otherwise the item will be removed and `Some(V)` will be returned.
     ///
-    /// This method is very similar to [lrem_value()](#method.lrem_value), the only difference is that this
-    /// methods returns the value and [lrem_value()](#method.lrem_value) returns only an indication whether
+    /// This method is very similar to [list_rm_val()](#method.list_rm_val), the only difference is that this
+    /// methods returns the value and [list_rm_val()](#method.list_rm_val) returns only an indication whether
     /// the item was removed or not.
 
-    pub fn lpop<V: DeserializeOwned, N: AsRef<str>>(&mut self, name: N, pos: usize) -> Option<V> {
+    pub fn list_pop<V: DeserializeOwned, N: AsRef<str>>(
+        &mut self,
+        name: N,
+        pos: usize,
+    ) -> Option<V> {
         let name = name.as_ref();
         match self.list_map.get_mut(name) {
             Some(list) => {
@@ -468,10 +472,10 @@ impl NoDb {
     /// a DB dump (which is decided according to the dump policy), an
     /// `anyhow::Error` is returned. Otherwise the item will be removed and `Ok(true)` will be returned.
     ///
-    /// This method is very similar to [lpop()](#method.lpop), the only difference is that this
-    /// methods returns an indication and [lpop()](#method.lpop) returns the actual item that was removed.
+    /// This method is very similar to [list_pop()](#method.list_pop), the only difference is that this
+    /// methods returns an indication and [list_pop()](#method.list_pop) returns the actual item that was removed.
 
-    pub fn lrem_value<V: Serialize, N: AsRef<str>>(&mut self, name: N, value: &V) -> Result<bool> {
+    pub fn list_rm_val<V: Serialize, N: AsRef<str>>(&mut self, name: N, value: &V) -> Result<bool> {
         let name = name.as_ref();
         match self.list_map.get_mut(name) {
             Some(list) => {
@@ -514,7 +518,7 @@ impl NoDb {
 
     /// Return an iterator over the items in certain list.
 
-    pub fn liter<N: AsRef<str>>(&self, name: N) -> NoDbListIter {
+    pub fn list_iter<N: AsRef<str>>(&self, name: N) -> NoDbListIter {
         let name = name.as_ref();
         match self.list_map.get(name) {
             Some(list) => NoDbListIter {

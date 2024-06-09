@@ -19,7 +19,7 @@ impl<'a> NoDbExt<'a> {
     /// items to the list.
 
     pub fn ladd<V: Serialize>(&mut self, value: V) -> Option<NoDbExt> {
-        self.db.ladd(&self.list_name, &value)
+        self.db.list_add(&self.list_name, &value)
     }
 
     /// Add multiple items to an existing list.
@@ -39,6 +39,6 @@ impl<'a> NoDbExt<'a> {
         V: 'b + Serialize,
         I: IntoIterator<Item = &'b V>,
     {
-        self.db.lextend(&self.list_name, seq)
+        self.db.list_extend(&self.list_name, seq)
     }
 }
