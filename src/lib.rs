@@ -24,6 +24,10 @@ pub use self::{
     ser::SerializationMethod,
 };
 
+pub mod prelude {
+    pub use crate::{NoDb, NoDbExt, SerializationMethod};
+}
+
 mod crypto;
 mod ext;
 mod iter;
