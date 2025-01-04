@@ -21,7 +21,7 @@ mod pot;
 mod ron;
 mod toml;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
 pub enum SerializationMethod {
     #[default]
     Json,
@@ -103,6 +103,7 @@ impl SerializeMethod for Serializer {
             Serializer::Pot(pot_ser) => pot_ser.serialize_data(data),
         }
     }
+
     fn serialize_db(&self, db_map: &DbMap, db_list_map: &DbListMap) -> Result<Vec<u8>> {
         match self {
             Serializer::Json(json_ser) => json_ser.serialize_db(db_map, db_list_map),
@@ -115,6 +116,7 @@ impl SerializeMethod for Serializer {
             Serializer::Pot(pot_ser) => pot_ser.serialize_db(db_map, db_list_map),
         }
     }
+
     fn deserialize_data<T: DeserializeOwned>(&self, data: &[u8]) -> Option<T> {
         match self {
             Serializer::Json(json_ser) => json_ser.deserialize_data(data),
@@ -127,6 +129,7 @@ impl SerializeMethod for Serializer {
             Serializer::Pot(pot_ser) => pot_ser.deserialize_data(data),
         }
     }
+
     fn deserialized_db(&self, ser_db: &[u8]) -> Result<(DbMap, DbListMap)> {
         match self {
             Serializer::Json(json_ser) => json_ser.deserialized_db(ser_db),

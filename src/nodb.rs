@@ -1,3 +1,7 @@
+//! # NoDB
+//!
+//! - An data structure representing a NoDB instance.
+
 use std::{
     fs::{read, rename, write, DirBuilder},
     path::{Path, PathBuf},
@@ -14,8 +18,6 @@ use crate::{
     ser::{SerializationMethod, SerializeMethod, Serializer},
     DbListMap, DbMap,
 };
-
-const B64: B64 = B64::new();
 
 /// An enum that determines the policy of dumping NoDb changes into the file
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
@@ -54,7 +56,6 @@ impl NoDb {
     ///
     /// let mut db = NoDb::new("example.db", DumpPolicy::AutoDump, SerializationMethod::Json);
     /// ```
-
     pub fn new<P: AsRef<Path>>(
         db_path: P,
         policy: DumpPolicy,
@@ -88,7 +89,6 @@ impl NoDb {
     /// use nodb::{NoDb, DumpPolicy, SerializationMethod};
     /// let nodb = NoDb::load("example.db", DumpPolicy::Auto, SerializationMethod::Json).unwrap();
     /// ```
-
     pub fn load<P: AsRef<Path>>(
         db_path: P,
         policy: DumpPolicy,
@@ -118,7 +118,6 @@ impl NoDb {
     /// [DumpPolicy::Never](enum.DumpPolicy.html#variant.Never).
     ///
     /// This method returns `Ok(())` if dump is successful, Or an `anyhow::Error` otherwise.
-
     pub fn dump(&mut self) -> Result<()> {
         if let DumpPolicy::Never = self.policy {
             return Ok(());
@@ -130,8 +129,8 @@ impl NoDb {
             self.path.to_str().unwrap_or("db"),
             SystemTime::now()
                 .duration_since(UNIX_EPOCH)
-                .unwrap()
-                .as_secs()
+                .map(|dur| dur.as_secs())
+                .unwrap_or(0)
         );
 
         write(&tmp, encrypted_data)?;
@@ -141,6 +140,7 @@ impl NoDb {
         }
         Ok(())
     }
+
     fn dumpdb(&mut self) -> Result<()> {
         match self.policy {
             DumpPolicy::Auto => self.dump(),
@@ -165,7 +165,6 @@ impl NoDb {
     /// This method returns `Ok(())` if set is successful, Or an `anyhow::Error`
     /// otherwise. An error is not likely to happen but may occur mostly in cases where this
     /// action triggers a DB dump (which is decided according to the dump policy).
-
     pub fn set<K: AsRef<str>, V: Serialize>(&mut self, key: K, value: V) -> Result<()> {
         let key = key.as_ref();
         if self.list_map.contains_key(key) {
@@ -195,7 +194,6 @@ impl NoDb {
     /// Since the values are stored in a serialized way the returned object is
     /// not a reference to the value stored in a DB but actually a new instance
     /// of it.
-
     pub fn get<K: AsRef<str>, V: DeserializeOwned>(&self, key: K) -> Option<V> {
         let key = key.as_ref();
         let res = self.map.get(key);
@@ -209,7 +207,6 @@ impl NoDb {
     /// Check if a key exists.
     ///
     /// This method returns `true` if the key exists and `false` otherwise.
-
     pub fn exists<K: AsRef<str>>(&self, key: K) -> bool {
         self.map.contains_key(key.as_ref()) || self.list_map.contains_key(key.as_ref())
     }
@@ -218,7 +215,6 @@ impl NoDb {
     ///
     /// The keys returned in the vector are not references to the actual key string
     /// objects but rather a clone of them.
-
     pub fn get_all(&self) -> Vec<String> {
         [
             self.map.keys().cloned().collect::<Vec<String>>(),
@@ -228,7 +224,6 @@ impl NoDb {
     }
 
     /// Get the total number of keys in the DB.
-
     pub fn total_keys(&self) -> usize {
         self.map.iter().len() + self.list_map.iter().len()
     }
@@ -239,7 +234,6 @@ impl NoDb {
     /// It may also return `anyhow::Error` if key was found but removal failed.
     /// Removal error is not likely to happen but may occur mostly in cases where this action triggers a DB dump
     /// (which is decided according to the dump policy).
-
     pub fn rem<K: AsRef<str>>(&mut self, key: K) -> Result<bool> {
         let key = key.as_ref();
         let rm_map = match self.map.remove(key) {
@@ -275,7 +269,6 @@ impl NoDb {
     /// [NoDbExt](struct.NoDbExt.html) that enables to add
     /// items to the newly created list. Alternatively you can use [list_add()](#method.list_add)
     /// or [list_extend()](#method.list_extend) to add items to the list.
-
     pub fn list_create<N: AsRef<str>>(&mut self, name: N) -> Result<NoDbExt> {
         let new_list = Vec::new();
         let name = name.as_ref();
@@ -295,7 +288,6 @@ impl NoDb {
     /// This method returns `true` if the list name exists and `false` otherwise.
     /// The difference between this method and [exists()](#method.exists) is that this methods checks only
     /// for lists with that name (key) and [exists()](#method.exists) checks for both values and lists.
-
     pub fn list_exists<N: AsRef<str>>(&self, name: N) -> bool {
         self.list_map.contains_key(name.as_ref())
     }
@@ -312,7 +304,6 @@ impl NoDb {
     /// items to the list. Alternatively the method returns `None` if the list isn't found in the DB
     /// or if a failure happened while extending the list. Failures are not likely to happen but may
     /// occur mostly in cases where this action triggers a DB dump (which is decided according to the dump policy).
-
     pub fn list_add<K: AsRef<str>, V: Serialize>(&mut self, name: K, value: &V) -> Option<NoDbExt> {
         self.list_extend(name, &[value])
     }
@@ -332,7 +323,6 @@ impl NoDb {
     /// items to the list. Alternatively the method returns `None` if the list isn't found in the DB
     /// or if a failure happened while extending the list. Failures are not likely to happen but may
     /// occur mostly in cases where this action triggers a DB dump (which is decided according to the dump policy).
-
     pub fn list_extend<'a, N: AsRef<str>, V, I>(&mut self, name: N, seq: I) -> Option<NoDbExt>
     where
         V: 'a + Serialize,
@@ -344,14 +334,17 @@ impl NoDb {
                 let orig_len = list.len();
                 let serialized = seq
                     .into_iter()
-                    .map(|v| ser.serialize_data(v).unwrap())
-                    .collect::<Vec<_>>();
+                    .map(|v| ser.serialize_data(v).ok())
+                    .collect::<Option<Vec<_>>>()?;
+
                 list.extend(serialized);
+
                 if self.dumpdb().is_err() {
-                    let same_list = self.list_map.get_mut(name.as_ref()).unwrap();
+                    let same_list = self.list_map.get_mut(name.as_ref())?;
                     same_list.truncate(orig_len);
                     return None;
                 }
+
                 Some(NoDbExt {
                     db: self,
                     list_name: name.as_ref().to_string(),
@@ -370,7 +363,6 @@ impl NoDb {
     /// is not a reference to the item stored in a DB but actually a new instance of it.
     /// If the list is not found in the DB or the given position is out of bounds
     /// of the list `None` will be returned. Otherwise `Some(V)` will be returned.
-
     pub fn list_get<V: DeserializeOwned, N: AsRef<str>>(&self, name: N, pos: usize) -> Option<V> {
         match self.list_map.get(name.as_ref()) {
             Some(list) => match list.get(pos) {
@@ -384,7 +376,6 @@ impl NoDb {
     /// Get the length of a list.
     ///
     /// If the list is empty or if it doesn't exist the value of 0 is returned.
-
     pub fn list_len<N: AsRef<str>>(&self, name: N) -> usize {
         match self.list_map.get(name.as_ref()) {
             Some(list) => list.len(),
@@ -401,7 +392,6 @@ impl NoDb {
     ///   returned. In case of a failure an `anyhow::Error` is returned.
     ///   Failures are not likely to happen but may occur mostly in cases where this action triggers a
     ///   DB dump (which is decided according to the dump policy).
-
     pub fn list_rm_list<N: AsRef<str>>(&mut self, name: N) -> Result<usize> {
         let res = self.list_len(&name);
         let name = name.as_ref();
@@ -434,7 +424,6 @@ impl NoDb {
     /// This method is very similar to [list_rm_val()](#method.list_rm_val), the only difference is that this
     /// methods returns the value and [list_rm_val()](#method.list_rm_val) returns only an indication whether
     /// the item was removed or not.
-
     pub fn list_pop<V: DeserializeOwned, N: AsRef<str>>(
         &mut self,
         name: N,
@@ -474,7 +463,6 @@ impl NoDb {
     ///
     /// This method is very similar to [list_pop()](#method.list_pop), the only difference is that this
     /// methods returns an indication and [list_pop()](#method.list_pop) returns the actual item that was removed.
-
     pub fn list_rm_val<V: Serialize, N: AsRef<str>>(&mut self, name: N, value: &V) -> Result<bool> {
         let name = name.as_ref();
         match self.list_map.get_mut(name) {
@@ -508,7 +496,6 @@ impl NoDb {
     }
 
     /// Return an iterator over the keys and values in the DB.
-
     pub fn iter(&self) -> NoDbIter {
         NoDbIter {
             map_iter: self.map.iter(),
@@ -517,7 +504,6 @@ impl NoDb {
     }
 
     /// Return an iterator over the items in certain list.
-
     pub fn list_iter<N: AsRef<str>>(&self, name: N) -> NoDbListIter {
         let name = name.as_ref();
         match self.list_map.get(name) {

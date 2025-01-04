@@ -1,45 +1,45 @@
 [package]
-name = "nodb"
-version = "0.2.2"
-authors = ["Rhelvetican <bionicvnb@gmail.com>"]
-license = "MIT"
-repository = "https://github.com/Rhelvetican/nodb"
-homepage = "https://github.com/Rhelvetican/nodb"
-readme = "README.md"
-description = "A lightweight and simple key-value store written in Rust."
-keywords = ["database", "key-value-store", "db", "kv", "nosql"]
-categories = ["database-implementations", "data-structures"]
-edition = "2021"
+    authors     = ["Rhelvetican <bionicvnb@gmail.com>"]
+    categories  = ["data-structures", "database-implementations"]
+    description = "A lightweight and simple key-value store written in Rust."
+    edition     = "2021"
+    homepage    = "https://github.com/Rhelvetican/nodb"
+    keywords    = ["database", "db", "key-value-store", "kv", "nosql"]
+    license     = "MIT"
+    name        = "nodb"
+    readme      = "README.md"
+    repository  = "https://github.com/Rhelvetican/nodb"
+    version     = "0.2.2"
 
 [dependencies]
-# Utilities
-anyhow = "1"
-base64 = "0"
+    # Utilities
+    anyhow = "1"
+    base64 = "0"
 
-# Data Serialization
-serde = { version = "1", features = ["derive"] }
-serde_json = { version = "1", features = ["preserve_order"] }
-serde_cbor = "0.11"
-bincode = "1"
-bitcode = { version = "0", features = ["serde"] }
-pot = "3"
-bson = "2"
-ron = "0.8"
-toml = "0.8"
+    # Data Serialization
+    bincode    = "1"
+    bitcode    = { version = "0", features = ["serde"] }
+    bson       = "2"
+    pot        = "3"
+    ron        = "0.8"
+    serde      = { version = "1", features = ["derive"] }
+    serde_cbor = "0.11"
+    serde_json = { version = "1", features = ["preserve_order"] }
+    toml       = "0.8"
 
 [dev-dependencies]
-rand = "0.8"
+    rand = "0.8"
 
 [[example]]
-name = "simple_db"
-path = "examples/simple_db/src/main.rs"
+    name = "simple_db"
+    path = "examples/simple_db/src/main.rs"
 
 [[example]]
-name = "load_db"
-path = "examples/load_db/src/main.rs"
+    name = "load_db"
+    path = "examples/load_db/src/main.rs"
 
 [[example]]
-name = "bson"
-path = "examples/bson/src/main.rs"
+    name = "bson"
+    path = "examples/bson/src/main.rs"
 
 [features]
